@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - name: Checkout ce depot
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4.2.2
       with:
         path: custom_module
 
@@ -41,20 +41,18 @@ jobs:
         source esp-idf/export.sh
         make -C micropython/mpy-cross -j$(nproc)
 
-    - name: Compiler le firmware ESP32-S3 8MB flash
+    - name: Compiler le firmware ESP32-S3
       run: |
         source esp-idf/export.sh
         cd micropython/ports/esp32
         make \
           BOARD=ESP32_GENERIC_S3 \
-          BOARD_VARIANT=FLASH_8M \
           USER_C_MODULES=$GITHUB_WORKSPACE/custom_module/gpio_hold_module/micropython.cmake \
           -j$(nproc)
 
     - name: Publier le firmware
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4.6.2
       with:
         name: firmware-esp32s3-gpio-hold
-        path: micropython/ports/esp32/build-ESP32_GENERIC_S3-FLASH_8M/firmware.bin
+        path: micropython/ports/esp32/build-ESP32_GENERIC_S3/firmware.bin
         retention-days: 30
-
