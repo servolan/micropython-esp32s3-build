@@ -29,6 +29,21 @@ jobs:
         . $IDF_PATH/export.sh
         make -C micropython/mpy-cross -j$(nproc)
 
+    - name: Premier build - telecharge les composants managed
+      run: |
+        . $IDF_PATH/export.sh
+        cd micropython/ports/esp32
+        make \
+          BOARD=ESP32_GENERIC_S3 \
+          USER_C_MODULES=$GITHUB_WORKSPACE/custom_module/gpio_hold_module/micropython.cmake \
+          -j$(nproc) || true
+
+    - name: Corriger incompatibilite TinyUSB
+      run: |
+        find micropython/ports/esp32/managed_components \
+          -name "usb_descriptors.c" \
+          -exec sed -i 's/CFG_TUD_CDC_EP_BUFSIZE/CFG_TUD_CDC_TX_BUFSIZE/g' {} \;
+
     - name: Compiler le firmware ESP32-S3
       run: |
         . $IDF_PATH/export.sh
