@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    container: espressif/idf:v5.2.2
     timeout-minutes: 90
 
     steps:
@@ -23,27 +24,14 @@ jobs:
         cd micropython
         git submodule update --init --depth 1
 
-    - name: Installer dependances systeme
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y git wget flex bison gperf python3 python3-pip \
-          cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
-
-    - name: Installer ESP-IDF v5.2.2
-      run: |
-        git clone --depth 1 --branch v5.2.2 \
-          https://github.com/espressif/esp-idf.git
-        cd esp-idf
-        ./install.sh esp32s3
-
     - name: Compiler mpy-cross
       run: |
-        source esp-idf/export.sh
+        . $IDF_PATH/export.sh
         make -C micropython/mpy-cross -j$(nproc)
 
     - name: Compiler le firmware ESP32-S3
       run: |
-        source esp-idf/export.sh
+        . $IDF_PATH/export.sh
         cd micropython/ports/esp32
         make \
           BOARD=ESP32_GENERIC_S3 \
